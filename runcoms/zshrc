@@ -11,3 +11,54 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
 fi
 
 # Customize to your needs...
+
+autoload -Uz promptinit
+promptinit
+prompt paradox
+
+if [ -f /opt/ros/indigo/setup.zsh ]; then
+    source /opt/ros/indigo/setup.zsh
+fi
+if [ -f ~/catkin_ws/devel/setup.zsh ]; then
+    source ~/catkin_ws/devel/setup.zsh
+fi
+
+if [ -d ~/.pyenv ]; then
+    export PYENV_ROOT=~/.pyenv
+    export PATH=$PYENV_ROOT/bin:$PATH
+    eval "$(pyenv init -)"
+fi
+
+if [ -e /usr/local/var/pyenv ]; then
+    export PYENV_ROOT=/usr/local/var/pyenv
+    if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
+    export PATH=$PYENV_ROOT/bin:$PATH
+fi
+
+if [ -d ~/.rbenv ]; then
+    export PATH=$HOME/.rbenv/bin:$PATH
+    eval "$(rbenv init -)"
+fi
+
+if [ -d ~/catkin_ws ]; then
+    alias catkin_make='(){(cd ~/catkin_ws && \catkin_make $@) && source ~/catkin_ws/devel/setup.zsh}'
+    export MYWLAN0IP=`ifconfig wlan0 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
+    export MYETH0IP=`ifconfig eth0 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
+    export ROS_IP=$(echo $MYETH0IP $MYWLAN0IP 127.0.0.1 | cut -d' ' -f1)
+    export ROS_MASTER_URI=http://$ROS_IP:11311
+    export GAZEBO_MODEL_PATH=~/catkin_ws/src/
+fi
+
+if [ -x ~/.nodebrew ]; then
+    export PATH=$HOME/.nodebrew/current/bin:$PATH
+fi
+
+if [ -x ~/usr/local/bin ]; then
+    export PATH=$HOME/usr/local/bin:$PATH
+fi
+
+if [ -x ~/usr/local/go ]; then
+    export GOPATH=$HOME/usr/local/go
+    export PATH=$GOPATH/bin:$PATH
+fi
+
