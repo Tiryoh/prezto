@@ -14,7 +14,6 @@ fi
 
 autoload -Uz promptinit
 promptinit
-prompt paradox
 
 REPORTTIME=1
 
