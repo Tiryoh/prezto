@@ -22,24 +22,6 @@ fi
 if [ -f ~/catkin_ws/devel/setup.zsh ]; then
     source ~/catkin_ws/devel/setup.zsh
 fi
-
-if [ -d ~/.pyenv ]; then
-    export PYENV_ROOT=~/.pyenv
-    export PATH=$PYENV_ROOT/bin:$PATH
-    eval "$(pyenv init -)"
-fi
-
-if [ -e /usr/local/var/pyenv ]; then
-    export PYENV_ROOT=/usr/local/var/pyenv
-    if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
-    export PATH=$PYENV_ROOT/bin:$PATH
-fi
-
-if [ -d ~/.rbenv ]; then
-    export PATH=$HOME/.rbenv/bin:$PATH
-    eval "$(rbenv init -)"
-fi
-
 if [ -d ~/catkin_ws ]; then
     alias catkin_make='(){(cd ~/catkin_ws && \catkin_make $@) && source ~/catkin_ws/devel/setup.zsh}'
     export MYWLAN0IP=`ifconfig wlan0 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
@@ -47,6 +29,17 @@ if [ -d ~/catkin_ws ]; then
     export ROS_IP=$(echo $MYETH0IP $MYWLAN0IP 127.0.0.1 | cut -d' ' -f1)
     export ROS_MASTER_URI=http://$ROS_IP:11311
     export GAZEBO_MODEL_PATH=~/catkin_ws/src/
+fi
+
+if [ -d ~/.pyenv ]; then
+    export PYENV_ROOT=~/.pyenv
+    export PATH=$PYENV_ROOT/bin:$PATH
+    eval "$(pyenv init -)"
+fi
+
+if [ -d ~/.rbenv ]; then
+    export PATH=$HOME/.rbenv/bin:$PATH
+    eval "$(rbenv init -)"
 fi
 
 if [ -x ~/.nodebrew ]; then
@@ -60,5 +53,26 @@ fi
 if [ -x ~/usr/local/go ]; then
     export GOPATH=$HOME/usr/local/go
     export PATH=$GOPATH/bin:$PATH
+fi
+
+if [[ "$OSTYPE" == "darwin"* ]];then
+    fpath=(/usr/local/share/zsh-completions $fpath)
+    [ -d /usr/local/opt/qt5 ] && export PATH=/usr/local/opt/qt5:$PATH
+    [ -d /usr/local/sbin ] && export PATH=/usr/local/sbin:$PATH
+    if [ -e /usr/local/var/pyenv ]; then
+        export PYENV_ROOT=/usr/local/var/pyenv
+        if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
+        export PATH=$PYENV_ROOT/bin:$PATH
+    fi
+    function display_notification () {
+        osascript -e 'on run argv
+        display notification current date as text with title item 1 of argv
+        end run' -- "$*"
+    }
+    function with_display_notification () {
+        "$@"
+        display_notification "($?)" "$@"
+    }
+
 fi
 
