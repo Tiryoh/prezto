@@ -16,6 +16,8 @@ autoload -Uz promptinit
 promptinit
 prompt paradox
 
+REPORTTIME=1
+
 if [ -f /opt/ros/indigo/setup.zsh ]; then
     source /opt/ros/indigo/setup.zsh
 fi
