@@ -67,13 +67,13 @@ fi
 
 if [[ "$OSTYPE" == "darwin"* ]];then
     fpath=(/usr/local/share/zsh-completions $fpath)
-    [ -d /usr/local/opt/qt5 ] && export PATH=/usr/local/opt/qt5:$PATH
+    # [ -d /usr/local/opt/qt5 ] && export PATH=/usr/local/opt/qt5:$PATH
     [ -d /usr/local/sbin ] && export PATH=/usr/local/sbin:$PATH
-    if [ -e /usr/local/var/pyenv ]; then
-        export PYENV_ROOT=/usr/local/var/pyenv
-        if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
-        export PATH=$PYENV_ROOT/bin:$PATH
-    fi
+    # if [ -e /usr/local/var/pyenv ]; then
+    #     export PYENV_ROOT=/usr/local/var/pyenv
+    #     if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
+    #     export PATH=$PYENV_ROOT/bin:$PATH
+    # fi
     function display_notification () {
         osascript -e 'on run argv
         display notification current date as text with title item 1 of argv
@@ -83,6 +83,4 @@ if [[ "$OSTYPE" == "darwin"* ]];then
         "$@"
         display_notification "($?)" "$@"
     }
-
 fi
-
