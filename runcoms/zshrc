@@ -73,6 +73,14 @@ if [ -x ~/usr/local/go ]; then
     export PATH=$GOPATH/bin:$PATH
 fi
 
+if [[ ! -z $(which exa) ]];then
+	alias exa='(){
+	([[ ! -z $(git status 2>/dev/null) ]] && [[ -z $(git status 2>/dev/null | grep "clean") ]]) \
+		&& exa  --time-style long-iso --long --git $@ \
+		|| exa  --time-style long-iso $@ \
+	}'
+fi
+
 if [[ "$OSTYPE" == "darwin"* ]];then
     fpath=(/usr/local/share/zsh-completions $fpath)
     # [ -d /usr/local/opt/qt5 ] && export PATH=/usr/local/opt/qt5:$PATH
