@@ -5,9 +5,92 @@
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
 
+
+[ -d /usr/local/share/zsh-completions ] && fpath=(/usr/local/share/zsh-completions $fpath)
+[ -d /usr/local/share/zsh/site-functions ] && fpath=(/usr/local/share/zsh/site-functions $fpath)
+[ -d $HOME/.zsh/completion ] && fpath=($HOME/.zsh/completion $fpath)
+
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
 # Customize to your needs...
+
+autoload -Uz promptinit
+promptinit
+
+autoload history-search-end
+zle -N history-beginning-search-backward-end history-search-end
+zle -N history-beginning-search-forward-end history-search-end
+bindkey "^P" history-beginning-search-backward-end
+bindkey "^N" history-beginning-search-forward-end
+
+REPORTTIME=1
+
+if [ -f /opt/ros/indigo/setup.zsh ]; then
+    source /opt/ros/indigo/setup.zsh
+fi
+if [ -f /opt/ros/kinetic/setup.zsh ]; then
+    source /opt/ros/kinetic/setup.zsh
+fi
+if [ -f ~/catkin_ws/devel/setup.zsh ]; then
+    source ~/catkin_ws/devel/setup.zsh
+fi
+if [ -d ~/catkin_ws ]; then
+    alias catkin_make='(){(cd ~/catkin_ws && \catkin_make $@) && source ~/catkin_ws/devel/setup.zsh}'
+    export MYWLAN0IP=`ifconfig wlan0 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
+    export MYETH0IP=`ifconfig eth0 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
+    export ROS_IP=$(echo $MYETH0IP $MYWLAN0IP 127.0.0.1 | cut -d' ' -f1)
+    export ROS_MASTER_URI=http://$ROS_IP:11311
+    export GAZEBO_MODEL_PATH=~/catkin_ws/src/
+fi
+
+if [ -d ~/.pyenv ]; then
+    export PYENV_ROOT=~/.pyenv
+    export PATH=$PYENV_ROOT/bin:$PATH
+    eval "$(pyenv init -)"
+    if [ -d ~/.pyenv/plugins/pyenv-virtualenv ]; then
+        eval "$(pyenv virtualenv-init -)"
+    fi
+fi
+
+if [ -d ~/.rbenv ]; then
+    export PATH=$HOME/.rbenv/bin:$PATH
+    eval "$(rbenv init -)"
+fi
+
+if [ -x ~/.nodebrew ]; then
+    export PATH=$HOME/.nodebrew/current/bin:$PATH
+fi
+
+if [ -x ~/usr/local/bin ]; then
+    export PATH=$HOME/usr/local/bin:$PATH
+fi
+
+if [ -x ~/usr/local/go ]; then
+    export GOPATH=$HOME/usr/local/go
+    export PATH=$GOPATH/bin:$PATH
+fi
+
+if [[ ! -z $(which exa) ]];then
+	alias exa='(){
+	([[ ! -z $(git status 2>/dev/null) ]] && [[ -z $(git status 2>/dev/null | grep "clean") ]]) \
+		&& exa  --time-style long-iso --long --git $@ \
+		|| exa  --time-style long-iso $@ \
+	}'
+fi
+
+if [[ "$OSTYPE" == "darwin"* ]];then
+    # [ -d /usr/local/opt/qt5 ] && export PATH=/usr/local/opt/qt5:$PATH
+    [ -d /usr/local/sbin ] && export PATH=/usr/local/sbin:$PATH
+    function display_notification () {
+        osascript -e 'on run argv
+        display notification current date as text with title item 1 of argv
+        end run' -- "$*"
+    }
+    function with_display_notification () {
+        "$@"
+        display_notification "($?)" "$@"
+    }
+fi
