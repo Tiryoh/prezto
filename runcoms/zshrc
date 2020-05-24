@@ -28,15 +28,6 @@ bindkey "^N" history-beginning-search-forward-end
 
 REPORTTIME=1
 
-if [ -f /opt/ros/indigo/setup.zsh ]; then
-    source /opt/ros/indigo/setup.zsh
-fi
-if [ -f /opt/ros/kinetic/setup.zsh ]; then
-    source /opt/ros/kinetic/setup.zsh
-fi
-if [ -f ~/catkin_ws/devel/setup.zsh ]; then
-    source ~/catkin_ws/devel/setup.zsh
-fi
 if [ -d ~/catkin_ws ]; then
     alias catkin_make='(){(cd ~/catkin_ws && \catkin_make $@) && source ~/catkin_ws/devel/setup.zsh}'
     export MYWLAN0IP=`ifconfig wlan0 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
