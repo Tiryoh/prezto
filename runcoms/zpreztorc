@@ -34,7 +34,9 @@ zstyle ':prezto:load' pmodule \
   'completion' \
   'git' \
   'command-not-found' \
-  'prompt'
+  'prompt' \
+  'syntax-highlighting' \
+  'autosuggestions'
 
 #
 # Autosuggestions
