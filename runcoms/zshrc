@@ -28,13 +28,13 @@ bindkey "^N" history-beginning-search-forward-end
 
 REPORTTIME=1
 
-if [ -d ~/catkin_ws ]; then
-    alias catkin_make='(){(cd ~/catkin_ws && \catkin_make $@) && source ~/catkin_ws/devel/setup.zsh}'
-    export MYWLAN0IP=`ifconfig wlan0 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
-    export MYETH0IP=`ifconfig eth0 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
+if [ -d ~/catkin_ws -o -d ~/ros ]; then
+    export MYWLAN0IP=`ip a show $(ip a | grep -o -E "wl.*:" | sed -e "s/://g") | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
+    export MYETH0IP=`ip a show $(ip a | grep -o -E "en.*:" | sed -e "s/://g") | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
     export ROS_IP=$(echo $MYETH0IP $MYWLAN0IP 127.0.0.1 | cut -d' ' -f1)
     export ROS_MASTER_URI=http://$ROS_IP:11311
-    export GAZEBO_MODEL_PATH=~/catkin_ws/src/
+    source /opt/ros/melodic/setup.zsh
+    source `catkin locate --shell-verbs`
 fi
 
 if [ -d ~/.pyenv ]; then
@@ -85,3 +85,4 @@ if [[ "$OSTYPE" == "darwin"* ]];then
         display_notification "($?)" "$@"
     }
 fi
+
