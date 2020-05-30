@@ -31,10 +31,14 @@ REPORTTIME=1
 if [ -d ~/catkin_ws -o -d ~/ros ]; then
     export MYWLAN0IP=`ip a show $(ip a | grep -o -E "wl.*:" | sed -e "s/://g") | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
     export MYETH0IP=`ip a show $(ip a | grep -o -E "en.*:" | sed -e "s/://g") | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
-    export ROS_IP=$(echo $MYETH0IP $MYWLAN0IP 127.0.0.1 | cut -d' ' -f1)
-    export ROS_MASTER_URI=http://$ROS_IP:11311
-    source /opt/ros/melodic/setup.zsh
-    source `catkin locate --shell-verbs`
+
+    # export ROS_IP=$(echo $MYETH0IP $MYWLAN0IP 127.0.0.1 | cut -d' ' -f1)
+    # export ROS_MASTER_URI=http://$ROS_IP:11311
+    # source /opt/ros/melodic/setup.zsh
+    # source `catkin locate --shell-verbs`
+
+    # export ROS_DOMAIN_ID=101
+    # source /opt/ros/dashing/setup.zsh
 fi
 
 if [ -d ~/.pyenv ]; then
