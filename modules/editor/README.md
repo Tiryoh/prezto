@@ -1,7 +1,17 @@
 Editor
 ======
 
-Sets key bindings.
+Sets editor specific key bindings options and variables.
+
+Options
+-------
+
+  - `BEEP` beep on error in line editor.
+
+Variables
+---------
+
+  - `WORDCHARS` treat a given set of characters as part of a word.
 
 Settings
 --------
@@ -87,7 +97,7 @@ will still see the headings and can tell which keymap each binding goes to.
 
 It will also pass through arguments so you can use bindkey-all to set bindings
 for all keymaps at once. If provided arguments it will *not* print out the
-names of each of the keymaps, and just run the command fear each keymap.
+names of each of the keymaps, and just run the command for each keymap.
 
 Authors
 -------
@@ -96,4 +106,4 @@ Authors
 
   - [Sorin Ionescu](https://github.com/sorin-ionescu)
 
-[1]: https://github.com/sorin-ionescu/oh-my-zsh/issues
+[1]: https://github.com/sorin-ionescu/prezto/issues

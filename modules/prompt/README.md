@@ -19,20 +19,21 @@ zstyle ':prezto:module:prompt' theme 'name'
 ### Prompt Display Length
 
 To change working directory prompt display length from 'short', set the
-following to 'long' (without '~' expansion) or 'full' (with '~' expansion)
+following to 'long' (without `~` expansion) or 'full' (with `~` expansion)
 in *zpreztorc*.
 
 ```sh
 zstyle ':prezto:module:prompt' pwd-length 'short'
 ```
 
-### Prompt Display Length
+### Display Return Value
 
-To change working directory prompt display length from 'short', set the
-following to 'long' (without '~' expansion) or 'full' (with '~' expansion)
-in *zpreztorc*.
+Some prompts display the return value in the prompt. If a prompt has support,
+this can be disabled with the following snippet.
 
-    zstyle ':prezto:module:prompt' pwd-length 'short'
+```sh
+zstyle ':prezto:module:prompt' show-return-val 'no'
+```
 
 Theming
 -------
@@ -41,6 +42,22 @@ A prompt theme is an autoloadable function file with a special name,
 `prompt_name_setup`, placed anywhere in `$fpath`, but for the purpose of this
 project, themes **should** be placed in the *modules/prompt/functions*
 directory.
+
+### Required Variables
+
+To ensure that your function works with the editor-info module you'll need to
+set the following variable:
+
+```
+  # Tell prezto we can manage this prompt
+  zstyle ':prezto:module:prompt' managed 'yes'
+```
+
+This is to ensure compatibility with outside prompts, while allowing prezto
+and prezto-compatible prompts to take full advantage of the editor module.
+This should be set in the `prompt_name_setup` function after you've added
+any additional hooks with `add-zsh-hook precmd prompt_name_precmd`. See below
+for additional information about functions and hooks.
 
 ### Theme Functions
 
@@ -129,6 +146,18 @@ function prompt_name_precmd {
 }
 ```
 
+Troubleshooting
+---------------
+
+### Fonts aren't displaying properly.
+
+On most systems, themes which use special characters need to have a patched font
+installed and configured properly.
+
+Powerline provides some information on [terminal support][4] and [how to install
+patched fonts][5] which should fix most font issues.
+
+
 Authors
 -------
 
@@ -139,3 +168,5 @@ Authors
 [1]: http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Prompt-Themes
 [2]: http://zsh.sourceforge.net/Doc/Release/Functions.html#Hook-Functions
 [3]: https://github.com/sorin-ionescu/prezto/issues
+[4]: http://powerline.readthedocs.io/en/master/usage.html#terminal-emulator-requirements
+[5]: http://powerline.readthedocs.io/en/latest/installation.html#fonts-installation
