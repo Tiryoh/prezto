@@ -94,3 +94,6 @@ if [[ "$OSTYPE" == "darwin"* ]];then
     }
 fi
 
+if [ -f ~/.zshrc.local ]; then
+    source $HOME/.zshrc.local
+fi
