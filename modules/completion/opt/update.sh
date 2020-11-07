@@ -11,3 +11,6 @@ fi
 if [ "$1" = "nodebrew" ]; then
 	curl -sL https://github.com/hokaccha/nodebrew/raw/master/completions/zsh/_nodebrew > _nodebrew
 fi
+if [ "$1" = "catkin" ]; then
+	curl -sL https://github.com/catkin/catkin_tools/raw/master/completion/_catkin > _catkin
+fi
