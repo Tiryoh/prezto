@@ -41,8 +41,23 @@ if [ -d ~/catkin_ws -o -d ~/ros ]; then
     # source /opt/ros/dashing/setup.zsh
 fi
 
+if [[ "$OSTYPE" == "darwin"* ]];then
+    [ -d /opt/homebrew/bin/ ] && eval $(/opt/homebrew/bin/brew shellenv)
+    [ -d /usr/local/opt/qt5 ] && export PATH=/usr/local/opt/qt5:$PATH
+    [ -d /usr/local/sbin ] && export PATH=/usr/local/sbin:$PATH
+    function display_notification () {
+        osascript -e 'on run argv
+        display notification current date as text with title item 1 of argv
+        end run' -- "$*"
+    }
+    function with_display_notification () {
+        "$@"
+        display_notification "($?)" "$@"
+    }
+fi
+
 if [ -d ~/.poetry/bin ]; then
-	export PATH=$HOME/.poetry/bin:$PATH
+    export PATH=$HOME/.poetry/bin:$PATH
 fi
 
 if [ -d ~/.pyenv ]; then
@@ -59,8 +74,11 @@ if [ -d ~/.rbenv ]; then
     eval "$(rbenv init -)"
 fi
 
-if [ -x ~/.nodebrew ]; then
-    export PATH=$HOME/.nodebrew/current/bin:$PATH
+if [ -d ~/.anyenv ]; then
+    if [ -d ~/.anyenv/bin ]; then
+        export PATH=$HOME/.anyenv/bin:$PATH
+    fi
+    eval "$(anyenv init -)"
 fi
 
 if [ -x ~/usr/local/bin ]; then
@@ -73,27 +91,14 @@ if [ -x ~/.go ]; then
 fi
 
 if [[ ! -z $(which exa) ]];then
-	alias exa='(){
-	([[ ! -z $(git status 2>/dev/null) ]] && [[ -z $(git status 2>/dev/null | grep "clean") ]]) \
-		&& exa  --time-style long-iso --long --git $@ \
-		|| exa  --time-style long-iso $@ \
-	}'
-fi
-
-if [[ "$OSTYPE" == "darwin"* ]];then
-    # [ -d /usr/local/opt/qt5 ] && export PATH=/usr/local/opt/qt5:$PATH
-    [ -d /usr/local/sbin ] && export PATH=/usr/local/sbin:$PATH
-    function display_notification () {
-        osascript -e 'on run argv
-        display notification current date as text with title item 1 of argv
-        end run' -- "$*"
-    }
-    function with_display_notification () {
-        "$@"
-        display_notification "($?)" "$@"
-    }
+    alias exa='(){
+    ([[ ! -z $(git status 2>/dev/null) ]] && [[ -z $(git status 2>/dev/null | grep "clean") ]]) \
+        && exa  --time-style long-iso --long --git $@ \
+        || exa  --time-style long-iso $@ \
+    }'
 fi
 
 if [ -f ~/.zshrc.local ]; then
     source $HOME/.zshrc.local
 fi
+export PROMPT='($(uname -m))'$PROMPT
