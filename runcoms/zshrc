@@ -54,6 +54,7 @@ if [[ "$OSTYPE" == "darwin"* ]];then
         "$@"
         display_notification "($?)" "$@"
     }
+    export PROMPT='($(uname -m))'$PROMPT
 fi
 
 if [ -d ~/.poetry/bin ]; then
@@ -101,4 +102,3 @@ fi
 if [ -f ~/.zshrc.local ]; then
     source $HOME/.zshrc.local
 fi
-export PROMPT='($(uname -m))'$PROMPT
