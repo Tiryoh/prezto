@@ -86,6 +86,10 @@ if [ -x ~/usr/local/bin ]; then
     export PATH=$HOME/usr/local/bin:$PATH
 fi
 
+if [ -x ~/.local/bin ]; then
+    export PATH=$HOME/.local/bin:$PATH
+fi
+
 if [ -x ~/.go ]; then
     export GOPATH=$HOME/.go
     export PATH=$GOPATH/bin:$PATH
