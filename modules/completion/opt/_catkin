@@ -190,6 +190,7 @@ _catkin_verbs_complete() {
     'list:List workspace components'
     'locate:Locate workspace components'
     'profile:Switch between configurations'
+    'source:Load workspace configs'
   )
   _describe -t verbs 'catkin verb' verbs_array -V verbs && return 0
 }
