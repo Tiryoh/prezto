@@ -14,3 +14,6 @@ fi
 if [ "$1" = "catkin" ]; then
 	curl -sL https://github.com/catkin/catkin_tools/raw/master/completion/_catkin > _catkin
 fi
+if [ "$1" = "docker-compose" ]; then
+	curl -L https://raw.githubusercontent.com/docker/compose/$(docker-compose version --short)/contrib/completion/zsh/_docker-compose > ~/.zsh/completion/_docker-compose
+fi
