@@ -124,14 +124,7 @@ if [ -x ~/.go ]; then
     export PATH=$GOPATH/bin:$PATH
 fi
 
-if [[ ! -z $(which exa) ]];then
-    alias exa='(){
-    ([[ ! -z $(git status 2>/dev/null) ]] && [[ -z $(git status 2>/dev/null | grep "clean") ]]) \
-        && exa  --time-style long-iso --long --git $@ \
-        || exa  --time-style long-iso $@ \
-    }'
+if [ -f ~/.zshrc_local ]; then
+    source $HOME/.zshrc_local
 fi
 
-if [ -f ~/.zshrc.local ]; then
-    source $HOME/.zshrc.local
-fi
