@@ -134,6 +134,6 @@ if [[ ! -z $(which exa) ]];then
     }'
 fi
 
-if [ -f ~/.zshrc.local ]; then
-    source $HOME/.zshrc.local
+if [ -f ~/.zshrc_local ]; then
+    source $HOME/.zshrc_local
 fi
