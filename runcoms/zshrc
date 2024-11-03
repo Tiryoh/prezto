@@ -8,6 +8,7 @@
 
 [ -d /usr/local/share/zsh-completions ] && fpath=(/usr/local/share/zsh-completions $fpath)
 [ -d /usr/local/share/zsh/site-functions ] && fpath=(/usr/local/share/zsh/site-functions $fpath)
+[ -d /opt/homebrew/share/zsh/site-functions ] && fpath=(/usr/local/share/zsh/site-functions $fpath)
 [ -d $HOME/.zsh/completion ] && fpath=($HOME/.zsh/completion $fpath)
 
 # Source Prezto.
@@ -71,6 +72,7 @@ if [ -d ~/catkin_ws -o -d ~/ros ]; then
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]];then
+    [ -d /opt/homebrew/opt/curl/bin ] && export PATH="/opt/homebrew/opt/curl/bin:$PATH"
     [ -d /opt/homebrew/bin/ ] && eval $(/opt/homebrew/bin/brew shellenv)
     [ -d /usr/local/opt/qt5 ] && export PATH=/usr/local/opt/qt5:$PATH
     [ -d /usr/local/sbin ] && export PATH=/usr/local/sbin:$PATH
