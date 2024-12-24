@@ -37,13 +37,14 @@ zstyle ':prezto:load' pmodule \
   'directory' \
   'spectrum' \
   'utility' \
-  'completion' \
   'git' \
-  'command-not-found' \
+  'python' \
+  'ssh' \
+  'completion' \
+  'autosuggestions' \
   'history-substring-search' \
-  'prompt' \
   'syntax-highlighting' \
-  'autosuggestions'
+  'prompt'
 
 #
 # Autosuggestions
