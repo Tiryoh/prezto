@@ -41,6 +41,19 @@ function peco-history-selection() {
 zle -N peco-history-selection
 bindkey '^R' peco-history-selection
 
+# peco-kill
+# https://qiita.com/yebi10/items/175b43d8f12876cfa068
+function peco-kill() {
+  local PID PEC PRC
+  [ $# = 0 ] && { PEC="peco"; PRC=""; } || { PEC="peco --query $1"; PRC=$1; }
+  for PID in `ps aux | ${PEC} | awk '{ print $2 }'`; do
+    kill ${PID}
+    echo "killed: ${PRC} ${PID}"
+  done
+}
+
+alias pk="peco-kill"
+
 # cdr
 if [[ -n $(echo ${^fpath}/chpwd_recent_dirs(N)) && -n $(echo ${^fpath}/cdr(N)) ]]; then
     autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
