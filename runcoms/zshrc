@@ -124,6 +124,10 @@ if [ -d ~/.anyenv ]; then
     eval "$(anyenv init -)"
 fi
 
+if [ -d ~/.pixi ]; then
+    export PATH="~/.pixi/bin:$PATH"
+fi
+
 if [ -x ~/usr/local/bin ]; then
     export PATH=$HOME/usr/local/bin:$PATH
 fi
