@@ -76,6 +76,7 @@ bindkey '^E' peco-cdr
 
 REPORTTIME=1
 
+# ROS 1 config
 if [ -d ~/catkin_ws -o -d ~/ros ]; then
     export MYWLAN0IP=`ip a show $(ip a | grep -o -E "wl.*:" | sed -e "s/://g") | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
     export MYETH0IP=`ip a show $(ip a | grep -o -E "en.*:" | sed -e "s/://g") | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
@@ -84,9 +85,39 @@ if [ -d ~/catkin_ws -o -d ~/ros ]; then
     # export ROS_MASTER_URI=http://$ROS_IP:11311
     # source /opt/ros/melodic/setup.zsh
     # source `catkin locate --shell-verbs`
+fi
 
-    # export ROS_DOMAIN_ID=101
-    # source /opt/ros/dashing/setup.zsh
+# ROS 2 config
+
+#export ROS_DOMAIN_ID=0
+
+function set_dds_discovery_range() {
+    export ROS_AUTOMATIC_DISCOVERY_RANGE=$1
+}
+
+_set_dds_discovery_range() {
+    local -a comps
+    comps=(SUBNET LOCALHOST OFF)
+
+    _values 'subcmd' $comps
+}
+
+compdef _set_dds_discovery_range set_dds_discovery_range
+
+
+if [ -d /usr/share/colcon_cd ]; then
+    source /usr/share/colcon_cd/function/colcon_cd-argcomplete.zsh
+fi
+
+if [ -d /usr/share/colcon_argcomplete/hook ]; then
+    source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.zsh
+fi
+
+if [ -d /opt/ros/jazzy ]; then
+    # https://github.com/ros2/ros2cli/issues/534#issuecomment-957516107
+    source /opt/ros/jazzy/setup.zsh
+    eval "$(register-python-argcomplete ros2)"
+    eval "$(register-python-argcomplete colcon)"
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]];then
