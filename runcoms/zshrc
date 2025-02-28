@@ -176,3 +176,5 @@ if [ -f ~/.zshrc_local ]; then
     source $HOME/.zshrc_local
 fi
 
+[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+
