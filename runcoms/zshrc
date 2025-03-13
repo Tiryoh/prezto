@@ -10,6 +10,7 @@
 [ -d /usr/local/share/zsh/site-functions ] && fpath=(/usr/local/share/zsh/site-functions $fpath)
 [ -d /opt/homebrew/share/zsh/site-functions ] && fpath=(/usr/local/share/zsh/site-functions $fpath)
 [ -d $HOME/.zsh/completion ] && fpath=($HOME/.zsh/completion $fpath)
+# run 'rm -f ~/.zcompdump; compinit' after updating completion file
 
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
