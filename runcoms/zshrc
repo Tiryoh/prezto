@@ -161,6 +161,10 @@ if [ -d ~/.pixi ]; then
     export PATH="~/.pixi/bin:$PATH"
 fi
 
+if [ -n $(which mise) ]; then
+    eval "$(mise activate zsh)"
+fi
+
 if [ -x ~/usr/local/bin ]; then
     export PATH=$HOME/usr/local/bin:$PATH
 fi
