@@ -189,11 +189,15 @@ if [ -x ~/.nvm ]; then
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 fi
 
+if [ -d ~/.codeium/windsurf/bin ]
+    export PATH="$HOME/.codeium/windsurf/bin:$PATH"
+fi
+
 if [[ "$TERM_PROGRAM" == "vscode" ]]; then
-    if [[ -z "$(which code)" ]]; then
+    if [[ -z "$(which code 2>/dev/null)" ]]; then
         source "$(code --locate-shell-integration-path zsh)"
     fi
-    if [[ -z "$(which cursor)" ]]; then
+    if [[ -z "$(which cursor 2>/dev/null)" ]]; then
         source "$(cursor --locate-shell-integration-path zsh)"
     fi
 fi
