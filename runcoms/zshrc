@@ -161,7 +161,7 @@ if [ -d ~/.pixi ]; then
     export PATH="~/.pixi/bin:$PATH"
 fi
 
-if [ -n $(which mise) ]; then
+if [ -n "$(which mise)" ]; then
     eval "$(mise activate zsh)"
 fi
 
@@ -202,7 +202,7 @@ if [[ "$TERM_PROGRAM" == "vscode" ]]; then
     fi
 fi
 
-if [[ -n $(which eza) ]];then
+if [[ -n "$(which eza)" ]];then
     alias eza='(){
     ([[ ! -z $(git status 2>/dev/null) ]] && [[ -z $(git status 2>/dev/null | grep "clean") ]]) \
         && eza --time-style long-iso --long --git $@ \
