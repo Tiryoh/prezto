@@ -161,6 +161,10 @@ if [ -d ~/.pixi ]; then
     export PATH="~/.pixi/bin:$PATH"
 fi
 
+if [ -n $(which uv) ]; then
+    eval "$(uv generate-shell-completion zsh)"
+fi
+
 # Run 'mise completion zsh > ~/.zsh/completion/_mise' for completion
 if [ -x ~/.local/bin/mise ]; then
     eval "$(mise activate zsh)"
