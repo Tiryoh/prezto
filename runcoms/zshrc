@@ -161,6 +161,7 @@ if [ -d ~/.pixi ]; then
     export PATH="~/.pixi/bin:$PATH"
 fi
 
+# Run 'mise completion zsh > ~/.zsh/completion/_mise' for completion
 if [ -x ~/.local/bin/mise ]; then
     eval "$(mise activate zsh)"
 fi
