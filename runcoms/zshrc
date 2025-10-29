@@ -106,19 +106,20 @@ _set_dds_discovery_range() {
 compdef _set_dds_discovery_range set_dds_discovery_range
 
 
+if [ -d /opt/ros/jazzy ]; then
+    # https://github.com/ros2/ros2cli/issues/534#issuecomment-957516107
+    source /opt/ros/jazzy/setup.zsh
+    eval "$(register-python-argcomplete ros2)"
+    eval "$(register-python-argcomplete colcon)"
+    export export RCUTILS_COLORIZED_OUTPUT=1
+fi
+
 if [ -d /usr/share/colcon_cd ]; then
     source /usr/share/colcon_cd/function/colcon_cd-argcomplete.zsh
 fi
 
 if [ -d /usr/share/colcon_argcomplete/hook ]; then
     source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.zsh
-fi
-
-if [ -d /opt/ros/jazzy ]; then
-    # https://github.com/ros2/ros2cli/issues/534#issuecomment-957516107
-    source /opt/ros/jazzy/setup.zsh
-    eval "$(register-python-argcomplete ros2)"
-    eval "$(register-python-argcomplete colcon)"
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]];then
