@@ -193,13 +193,23 @@ if [ -d ~/.codeium/windsurf/bin ]; then
     export PATH="$HOME/.codeium/windsurf/bin:$PATH"
 fi
 
+# set terminal.integrated.env.linux in Cursor's settings.json
 if [[ "$TERM_PROGRAM" == "vscode" ]]; then
-    if [[ -z "$(which code 2>/dev/null)" ]]; then
-        source "$(code --locate-shell-integration-path zsh)"
+    if [[ "$CURSOR_IDE" == "1" ]]; then
+        if [[ -z "$(which cursor 2>/dev/null)" ]]; then
+            source "$(cursor --locate-shell-integration-path zsh)"
+        fi
+    else
+        if [[ -z "$(which code 2>/dev/null)" ]]; then
+            source "$(code --locate-shell-integration-path zsh)"
+        fi
     fi
-    if [[ -z "$(which cursor 2>/dev/null)" ]]; then
-        source "$(cursor --locate-shell-integration-path zsh)"
-    fi
+fi
+# Do not save command history from Copilot Chat
+if [[ -n "${COPILOT_RUN:-}" ]]; then
+    unset HISTFILE
+    HISTSIZE=0
+    SAVEHIST=0
 fi
 
 if [[ -n "$(which eza)" ]];then
