@@ -191,12 +191,6 @@ if [ -x ~/go ]; then
     export PATH=$GOPATH/bin:$PATH
 fi
 
-if [ -x ~/.nvm ]; then
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-fi
-
 if [ -d ~/.codeium/windsurf/bin ]; then
     export PATH="$HOME/.codeium/windsurf/bin:$PATH"
 fi
