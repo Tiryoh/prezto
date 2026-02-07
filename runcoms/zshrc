@@ -227,6 +227,8 @@ if command -v eza >/dev/null 2>&1; then
   }
 fi
 
+function mise-select() { [[ -z "$1" ]] && return 1 || mise use "$1@$(mise ls-remote "$1" | sort -rV | fzf)" }
+
 if [ -f ~/.zshrc_local ]; then
     source $HOME/.zshrc_local
 fi
