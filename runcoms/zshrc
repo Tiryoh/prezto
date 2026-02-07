@@ -207,12 +207,6 @@ if [[ "$TERM_PROGRAM" == "vscode" ]]; then
         fi
     fi
 fi
-# Do not save command history from Copilot Chat
-if [[ -n "${COPILOT_RUN:-}" ]]; then
-    unset HISTFILE
-    HISTSIZE=0
-    SAVEHIST=0
-fi
 
 if command -v eza >/dev/null 2>&1; then
   eza() {
@@ -242,5 +236,17 @@ bindkey '^g' ghq-fzf
 
 if [ -f ~/.zshrc_local ]; then
     source $HOME/.zshrc_local
+fi
+
+# Do not save command history from Copilot Chat
+if [[ -n "${COPILOT_RUN:-}" ]]; then
+    unset HISTFILE
+    HISTSIZE=0
+    SAVEHIST=0
+    # prompt/theme の更新を止める（prezto/steeef 由来を無効化）
+    precmd_functions=(${precmd_functions:#prompt_steeef_precmd})
+    precmd_functions=(${precmd_functions:#update_lprompt})
+    PROMPT='%n@%m:%~%# '
+    RPROMPT=''
 fi
 
