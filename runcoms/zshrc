@@ -198,12 +198,14 @@ fi
 # set terminal.integrated.env.linux in Cursor's settings.json
 if [[ "$TERM_PROGRAM" == "vscode" ]]; then
     if [[ "$CURSOR_IDE" == "1" ]]; then
-        if [[ -z "$(which cursor 2>/dev/null)" ]]; then
-            source "$(cursor --locate-shell-integration-path zsh)"
+        if command -v cursor >/dev/null 2>&1; then
+            src_path="$(cursor --locate-shell-integration-path zsh 2>/dev/null)"
+            [[ -f "$src_path" ]] && source "$src_path"
         fi
     else
-        if [[ -z "$(which code 2>/dev/null)" ]]; then
-            source "$(code --locate-shell-integration-path zsh)"
+        if command -v code >/dev/null 2>&1; then
+            src_path="$(code --locate-shell-integration-path zsh 2>/dev/null)"
+            [[ -f "$src_path" ]] && source "$src_path"
         fi
     fi
 fi
@@ -249,4 +251,3 @@ if [[ -n "${COPILOT_RUN:-}" ]]; then
     PROMPT='%n@%m:%~%# '
     RPROMPT=''
 fi
-
