@@ -79,8 +79,10 @@ REPORTTIME=1
 
 # ROS 1 config
 if [ -d ~/catkin_ws -o -d ~/ros ]; then
-    export MYWLAN0IP=`ip a show "$(ip a | grep -o -E "wl.*:" | sed -e "s/://g" | head -n1)" 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
-    export MYETH0IP=`ip a show "$(ip a | grep -o -E "en.*:" | sed -e "s/://g" | head -n1)" 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
+    if command -v ip; then
+        export MYWLAN0IP=`ip a show "$(ip a | grep -o -E "wl.*:" | sed -e "s/://g" | head -n1)" 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
+        export MYETH0IP=`ip a show "$(ip a | grep -o -E "en.*:" | sed -e "s/://g" | head -n1)" 2>/dev/null | grep -o -E "([0-9]+\.){3}[0-9]+" | head -n1`
+    fi
 
     # export ROS_IP=$(echo $MYETH0IP $MYWLAN0IP 127.0.0.1 | cut -d' ' -f1)
     # export ROS_MASTER_URI=http://$ROS_IP:11311
@@ -106,19 +108,20 @@ _set_dds_discovery_range() {
 compdef _set_dds_discovery_range set_dds_discovery_range
 
 
+if [ -d /opt/ros/jazzy ]; then
+    # https://github.com/ros2/ros2cli/issues/534#issuecomment-957516107
+    source /opt/ros/jazzy/setup.zsh
+    eval "$(register-python-argcomplete ros2)"
+    eval "$(register-python-argcomplete colcon)"
+    export export RCUTILS_COLORIZED_OUTPUT=1
+fi
+
 if [ -d /usr/share/colcon_cd ]; then
     source /usr/share/colcon_cd/function/colcon_cd-argcomplete.zsh
 fi
 
 if [ -d /usr/share/colcon_argcomplete/hook ]; then
     source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.zsh
-fi
-
-if [ -d /opt/ros/jazzy ]; then
-    # https://github.com/ros2/ros2cli/issues/534#issuecomment-957516107
-    source /opt/ros/jazzy/setup.zsh
-    eval "$(register-python-argcomplete ros2)"
-    eval "$(register-python-argcomplete colcon)"
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]];then
@@ -166,7 +169,7 @@ if [ -n $(which uv) ]; then
 fi
 
 # Run 'mise completion zsh > ~/.zsh/completion/_mise' for completion
-if [ -x ~/.local/bin/mise ]; then
+if [ -x ~/.local/bin/mise ] || [ -x /opt/homebrew/bin/mise ]; then
     eval "$(mise activate zsh)"
 fi
 
@@ -198,22 +201,50 @@ if [ -d ~/.codeium/windsurf/bin ]; then
     export PATH="$HOME/.codeium/windsurf/bin:$PATH"
 fi
 
+# set terminal.integrated.env.linux in Cursor's settings.json
 if [[ "$TERM_PROGRAM" == "vscode" ]]; then
-    if [[ -z "$(which code 2>/dev/null)" ]]; then
-        source "$(code --locate-shell-integration-path zsh)"
+    if [[ "$CURSOR_IDE" == "1" ]]; then
+        if [[ -z "$(which cursor 2>/dev/null)" ]]; then
+            source "$(cursor --locate-shell-integration-path zsh)"
+        fi
+    else
+        if [[ -z "$(which code 2>/dev/null)" ]]; then
+            source "$(code --locate-shell-integration-path zsh)"
+        fi
     fi
-    if [[ -z "$(which cursor 2>/dev/null)" ]]; then
-        source "$(cursor --locate-shell-integration-path zsh)"
-    fi
+fi
+# Do not save command history from Copilot Chat
+if [[ -n "${COPILOT_RUN:-}" ]]; then
+    unset HISTFILE
+    HISTSIZE=0
+    SAVEHIST=0
 fi
 
-if [[ -n "$(which eza)" ]];then
-    alias eza='(){
-    ([[ ! -z $(git status 2>/dev/null) ]] && [[ -z $(git status 2>/dev/null | grep "clean") ]]) \
-        && eza --time-style long-iso --long --git $@ \
-        || eza --time-style long-iso $@ \
-    }'
+if command -v eza >/dev/null 2>&1; then
+  eza() {
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
+        command eza --time-style long-iso --long --git --all "$@"
+        return
+      fi
+    fi
+    command eza --time-style long-iso "$@"
+  }
 fi
+
+function mise-select() { [[ -z "$1" ]] && return 1 || mise use "$1@$(mise ls-remote "$1" | sort -rV | fzf)" }
+
+function ghq-fzf() {
+  #local src=$(ghq list | fzf --preview "ls -laTp $(ghq root)/{} | tail -n+4 | awk '{print \$9\"/\"\$6\"/\"\$7 \" \" \$10}'")
+  local src=$(ghq list | fzf --preview "eza --all --long --git --icons --time-style long-iso $(ghq root)/{} | awk '{print \$4\" \"\$5\"/\"\$6\" \"\$7 \" \" \$8}'")
+  if [ -n "$src" ]; then
+    BUFFER="cd $(ghq root)/$src"
+    zle accept-line
+  fi
+  zle -R -c
+}
+zle -N ghq-fzf
+bindkey '^g' ghq-fzf
 
 if [ -f ~/.zshrc_local ]; then
     source $HOME/.zshrc_local
