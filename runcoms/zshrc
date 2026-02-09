@@ -213,8 +213,8 @@ fi
 if command -v eza >/dev/null 2>&1; then
   eza() {
     if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-      if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
-        command eza --time-style long-iso --long --git --all "$@"
+        if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
+            command eza --time-style long-iso --long --git --all "$@"
         return
       fi
     fi
