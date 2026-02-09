@@ -164,7 +164,7 @@ if [ -d ~/.pixi ]; then
     export PATH="~/.pixi/bin:$PATH"
 fi
 
-if [ -n $(which uv) ]; then
+if command -v uv >/dev/null 2>&1; then
     eval "$(uv generate-shell-completion zsh)"
 fi
 
