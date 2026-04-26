@@ -81,6 +81,7 @@ fi
 
 #export ROS_DOMAIN_ID=0
 
+
 function set_dds_discovery_range() {
     export ROS_AUTOMATIC_DISCOVERY_RANGE=$1
 }
@@ -129,6 +130,24 @@ if [[ "$OSTYPE" == "darwin"* ]];then
     export PROMPT='($(uname -m))'$PROMPT
 fi
 
+if [ -x ~/usr/local/bin ]; then
+    export PATH=$HOME/usr/local/bin:$PATH
+fi
+
+if [ -x ~/.local/bin ]; then
+    export PATH=$HOME/.local/bin:$PATH
+fi
+
+if [ -x ~/.go ]; then
+    export GOPATH=$HOME/.go
+    export PATH=$GOPATH/bin:$PATH
+fi
+
+if [ -x ~/go ]; then
+    export GOPATH=$HOME/go
+    export PATH=$GOPATH/bin:$PATH
+fi
+
 if [ -d ~/.poetry/bin ]; then
     export PATH=$HOME/.poetry/bin:$PATH
 fi
@@ -151,35 +170,13 @@ if [ -d ~/.pixi ]; then
     export PATH="~/.pixi/bin:$PATH"
 fi
 
-if command -v uv >/dev/null 2>&1; then
-    eval "$(uv generate-shell-completion zsh)"
-fi
-
 # Run 'mise completion zsh > ~/.zsh/completion/_mise' for completion
 if [ -x ~/.local/bin/mise ] || [ -x /opt/homebrew/bin/mise ]; then
     eval "$(mise activate zsh)"
 fi
 
-if [ -x ~/usr/local/bin ]; then
-    export PATH=$HOME/usr/local/bin:$PATH
-fi
-
-if [ -x ~/.local/bin ]; then
-    export PATH=$HOME/.local/bin:$PATH
-fi
-
-if [ -x ~/.go ]; then
-    export GOPATH=$HOME/.go
-    export PATH=$GOPATH/bin:$PATH
-fi
-
-if [ -x ~/go ]; then
-    export GOPATH=$HOME/go
-    export PATH=$GOPATH/bin:$PATH
-fi
-
-if [ -d ~/.codeium/windsurf/bin ]; then
-    export PATH="$HOME/.codeium/windsurf/bin:$PATH"
+if command -v uv >/dev/null 2>&1; then
+    eval "$(uv generate-shell-completion zsh)"
 fi
 
 # set terminal.integrated.env.linux in Cursor's settings.json
@@ -265,6 +262,10 @@ bindkey '^g' ghq-fzf
 
 if command -v gwq >/dev/null 2>&1; then
     source <(gwq completion zsh)
+fi
+
+if command -v direnv >/dev/null 2>&1; then
+    eval "$(direnv hook zsh)"
 fi
 
 if [ -f ~/.zshrc_local ]; then
