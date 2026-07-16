@@ -246,7 +246,13 @@ function ghq-fzf() {
     #local src="$(ghq root)/$(ghq list | fzf --preview "eza --all --long --git --icons --time-style long-iso $(ghq root)/{} | awk '{print \$4\" \"\$5\"/\"\$6\" \"\$7 \" \" \$8}'")"
     local src=$(
         ghq list -p |
-        awk -v re="^(${roots_re})/" '{d=$0; sub(re, "", d); print d "\t" $0}' |
+        awk -v re="^(${roots_re})/" '
+            {
+                d = $0
+                sub(re, "", d)
+                if (d !~ /(^|\/)\.[^/]*(\/|$)/) print d "\t" $0
+            }
+        ' |
         fzf --delimiter=$'\t' --with-nth=1 \
             --preview 'eza --all --long --git --icons --time-style long-iso -- {2}' |
         cut -f2
