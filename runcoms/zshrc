@@ -250,7 +250,7 @@ function ghq-fzf() {
             {
                 d = $0
                 sub(re, "", d)
-                if (d !~ /(^|\/)\.[^/]*(\/|$)/) print d "\t" $0
+                if (d !~ "(^|/)[.][^/]*(/|$)") print d "\t" $0
             }
         ' |
         fzf --delimiter=$'\t' --with-nth=1 \
