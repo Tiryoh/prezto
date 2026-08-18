@@ -281,6 +281,122 @@ function codex-fast() {
     --enable fast_mode "$@"
 }
 
+export ROS2_WORKSPACE="${ROS2_WORKSPACE:-$HOME/ros2_ws}"
+
+# Build from $ROS2_WORKSPACE regardless of the current directory, so that running
+# colcon inside a package does not create build/install trees there.
+#
+# Inside a worktree that lives outside the workspace, this would build whatever
+# the workspace currently points at rather than the code being edited, so require
+# cbw instead.
+#
+# $ROS2_WORKSPACE is expanded at call time, so it may be set after this function
+# is defined (e.g. in .zshrc_local) or overridden for a single invocation.
+function colcon() {
+    # No workspace configured means this layout is not in use here, so stay out
+    # of the way and behave like plain colcon. (It would also make pushd run with
+    # no argument, swapping the directory stack and building somewhere else.)
+    if [ -z "$ROS2_WORKSPACE" ]; then
+        command colcon "$@"
+        return
+    fi
+    if [[ "$PWD" != "$ROS2_WORKSPACE"* ]] && git rev-parse --show-toplevel >/dev/null 2>&1; then
+        echo "colcon: inside a worktree; use cbw instead:" >&2
+        echo "  cbw $*" >&2
+        return 1
+    fi
+    echo "ROS2_WORKSPACE: ${ROS2_WORKSPACE}"
+    pushd $ROS2_WORKSPACE > /dev/null
+    command colcon "$@"
+    popd > /dev/null
+    # Missing before the first successful build, and after a failed one.
+    [ -f $ROS2_WORKSPACE/install/setup.zsh ] && source $ROS2_WORKSPACE/install/setup.zsh
+}
+
+# colcon build/test for the current git worktree.
+#
+# Points --base-paths at the worktree and keeps build/install under
+# ~/.cache/colcon/<worktree-name>/, so several worktrees can be built and tested
+# in parallel without interfering with each other.
+#
+# Dependencies are resolved from the base workspace ($ROS2_WORKSPACE) used as an
+# underlay, so only the target packages need to be rebuilt.
+#
+# Usage:
+#   cbw build --packages-select <pkg>
+#   cbw test  --packages-select <pkg>
+#   cbw test-result --verbose
+function cbw() {
+    local wt name out ws
+    wt=$(git rev-parse --show-toplevel 2>/dev/null) || {
+        echo "cbw: run inside a git worktree/repository" >&2
+        return 1
+    }
+    name=${wt:t}
+    out=$HOME/.cache/colcon/$name
+    ws=${ROS2_WORKSPACE:-$HOME/ros2_ws}
+    echo "cbw: worktree=$wt"
+    echo "cbw: out=$out"
+    (
+        [ -n "$ROS_DISTRO" ] && [ -f /opt/ros/$ROS_DISTRO/setup.zsh ] \
+            && source /opt/ros/$ROS_DISTRO/setup.zsh
+        # Underlay providing the dependencies that are not rebuilt here.
+        [ -f $ws/install/setup.zsh ] && source $ws/install/setup.zsh
+        # Reuse the repository build settings (build type, compiler launcher, ...).
+        [ -f $wt/colcon_defaults.yaml ] \
+            && export COLCON_DEFAULTS_FILE=$wt/colcon_defaults.yaml
+        if command -v ccache >/dev/null 2>&1; then
+            # Keep the build path out of the hash so the cache is shared across
+            # worktrees; otherwise each new path misses the whole cache.
+            export CCACHE_BASEDIR=$out
+            export CCACHE_NOHASHDIR=1
+        fi
+        case $1 in
+            test-result)
+                # test-result takes neither --base-paths nor --install-base.
+                command colcon "$@" --test-result-base $out/build
+                ;;
+            test)
+                # The interactive RMW may be tuned for real robots rather than for
+                # tests. Set CBW_TEST_RMW to the value the repository expects (see
+                # its AGENTS.md); left unset, the current environment is used.
+                if [ -n "$CBW_TEST_RMW" ]; then
+                    export RMW_IMPLEMENTATION=$CBW_TEST_RMW
+                    echo "cbw: RMW_IMPLEMENTATION=$RMW_IMPLEMENTATION"
+                fi
+                command colcon "$@" --base-paths $wt \
+                    --build-base $out/build --install-base $out/install
+                ;;
+            *)
+                command colcon "$@" --base-paths $wt \
+                    --build-base $out/build --install-base $out/install
+                ;;
+        esac
+    )
+}
+
+# Source the install space that cbw produced for the current worktree.
+# cbw runs in a subshell, so its environment does not leak to the caller.
+function cbwa() {
+    local wt name out ws
+    wt=$(git rev-parse --show-toplevel 2>/dev/null) || {
+        echo "cbwa: run inside a git worktree/repository" >&2
+        return 1
+    }
+    name=${wt:t}
+    out=$HOME/.cache/colcon/$name
+    ws=${ROS2_WORKSPACE:-$HOME/ros2_ws}
+    if [ ! -f $out/install/setup.zsh ]; then
+        echo "cbwa: $out/install not found; run 'cbw build' first" >&2
+        return 1
+    fi
+    [ -n "$ROS_DISTRO" ] && [ -f /opt/ros/$ROS_DISTRO/setup.zsh ] \
+        && source /opt/ros/$ROS_DISTRO/setup.zsh
+    [ -f $ws/install/setup.zsh ] && source $ws/install/setup.zsh
+    source $out/install/setup.zsh
+    echo "cbwa: activated $out/install"
+}
+
 if [ -f ~/.zshrc_local ]; then
     source $HOME/.zshrc_local
 fi
