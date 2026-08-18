@@ -313,11 +313,36 @@ function colcon() {
     [ -f $ROS2_WORKSPACE/install/setup.zsh ] && source $ROS2_WORKSPACE/install/setup.zsh
 }
 
+# Cache directory holding the build/install trees for the current worktree:
+# ~/.cache/colcon/<repository>/<worktree>.
+#
+# Keyed by repository as well as worktree because worktree names are only unique
+# within a repository: two repositories that both have a feature-x worktree would
+# otherwise share one build directory. Nested instead of joined by a separator
+# because both names routinely contain hyphens, so a flat key could not be split
+# back apart; nesting also makes `rm -rf ~/.cache/colcon/<repository>` a
+# per-repository cleanup.
+function _cbw_out_dir() {
+    local wt common repo
+    wt=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
+    # --git-common-dir resolves to the main repository even from a linked
+    # worktree. --path-format=absolute is required: the bare form returns a path
+    # relative to the cwd when called inside the main worktree.
+    common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
+    if [[ ${common:t} == .git ]]; then
+        repo=${common:h:t}
+    else
+        # A bare clone has no .git directory to take the parent of.
+        repo=${common:t:r}
+    fi
+    print -r -- $HOME/.cache/colcon/$repo/${wt:t}
+}
+
 # colcon build/test for the current git worktree.
 #
-# Points --base-paths at the worktree and keeps build/install under
-# ~/.cache/colcon/<worktree-name>/, so several worktrees can be built and tested
-# in parallel without interfering with each other.
+# Points --base-paths at the worktree and keeps build/install out of tree (see
+# _cbw_out_dir), so several worktrees can be built and tested in parallel without
+# interfering with each other.
 #
 # Dependencies are resolved from the base workspace ($ROS2_WORKSPACE) used as an
 # underlay, so only the target packages need to be rebuilt.
@@ -333,13 +358,12 @@ function colcon() {
 #   cbw test  --packages-select <pkg>
 #   cbw test-result --verbose
 function cbw() {
-    local wt name out ws
+    local wt out ws
     wt=$(git rev-parse --show-toplevel 2>/dev/null) || {
         echo "cbw: run inside a git worktree/repository" >&2
         return 1
     }
-    name=${wt:t}
-    out=$HOME/.cache/colcon/$name
+    out=$(_cbw_out_dir) || return 1
     ws=${ROS2_WORKSPACE:-$HOME/ros2_ws}
     echo "cbw: worktree=$wt"
     echo "cbw: out=$out"
@@ -393,13 +417,11 @@ function cbw() {
 #   cbwa
 #   ros2 launch <pkg> <launch file>
 function cbwa() {
-    local wt name out ws
-    wt=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    local out ws
+    out=$(_cbw_out_dir) || {
         echo "cbwa: run inside a git worktree/repository" >&2
         return 1
     }
-    name=${wt:t}
-    out=$HOME/.cache/colcon/$name
     ws=${ROS2_WORKSPACE:-$HOME/ros2_ws}
     if [ ! -f $out/install/setup.zsh ]; then
         echo "cbwa: $out/install not found; run 'cbw build' first" >&2
