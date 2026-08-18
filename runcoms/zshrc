@@ -322,6 +322,12 @@ function colcon() {
 # Dependencies are resolved from the base workspace ($ROS2_WORKSPACE) used as an
 # underlay, so only the target packages need to be rebuilt.
 #
+# Runs in a subshell so that the exported variables and the sourced underlay do
+# not leak into the caller. RMW_IMPLEMENTATION in particular is switched for
+# tests and must not stay behind and break talking to a real robot. As a result
+# the built packages are NOT visible to the calling shell; run cbwa when they
+# need to be (see below).
+#
 # Usage:
 #   cbw build --packages-select <pkg>
 #   cbw test  --packages-select <pkg>
@@ -375,8 +381,17 @@ function cbw() {
     )
 }
 
-# Source the install space that cbw produced for the current worktree.
-# cbw runs in a subshell, so its environment does not leak to the caller.
+# Source the install space that cbw produced for the current worktree, so the
+# packages built there can actually be run.
+#
+# Only needed to launch or run nodes locally; checking that a build or a test
+# passes needs cbw alone. The worktree overlays the base workspace, so its
+# packages win over the ones already installed there.
+#
+# Usage:
+#   cbw build --packages-select <pkg>
+#   cbwa
+#   ros2 launch <pkg> <launch file>
 function cbwa() {
     local wt name out ws
     wt=$(git rev-parse --show-toplevel 2>/dev/null) || {
