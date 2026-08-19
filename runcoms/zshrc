@@ -313,8 +313,13 @@ function colcon() {
     # the caller at all, and && keeps colcon from running in the current
     # directory when the workspace is missing.
     ( cd $ROS2_WORKSPACE && command colcon "$@" )
-    # Missing before the first successful build, and after a failed one.
+    local ret=$?
+    # Missing before the first successful build, and after a failed one. Sourcing
+    # it is a side errand, so its outcome must not stand in for colcon's: without
+    # the saved status, a failed build reported success whenever the file happened
+    # to be there, and a good one reported failure whenever it was not.
     [ -f $ROS2_WORKSPACE/install/setup.zsh ] && source $ROS2_WORKSPACE/install/setup.zsh
+    return $ret
 }
 
 # Cache directory holding the build/install trees for the current worktree:

@@ -10,8 +10,11 @@
 # out of modules/directory/init.zsh rather than copied here, so the test follows
 # prezto if the module changes.
 #
-# colcon itself is replaced by a stub that records the directory it ran in, so
-# no build happens and neither colcon nor ROS needs to be installed.
+# colcon itself is replaced by a stub that records the directory it ran in and
+# exits with a code of the test's choosing, so no build happens and neither
+# colcon nor ROS needs to be installed. That stub exit code is how the wrapper's
+# own exit status is checked: `colcon build && ...` must not run the second half
+# after a failed build.
 #
 # Usage: bin/tests/colcon_wrapper_test.zsh [path/to/zshrc]
 
@@ -47,24 +50,28 @@ rm -rf $TMP && mkdir -p $TMP/ws/src/pkg $TMP/ws/install $TMP/elsewhere $TMP/bin
 cat > $TMP/bin/colcon <<'STUB'
 #!/bin/sh
 pwd > "$COLCON_STUB_LOG"
+exit ${COLCON_STUB_EXIT:-0}
 STUB
 chmod +x $TMP/bin/colcon
 PATH=$TMP/bin:$PATH
-export COLCON_STUB_LOG=$TMP/ran
+export COLCON_STUB_LOG=$TMP/ran COLCON_STUB_EXIT=0
 
 short() { print -r -- ${1/#$TMP/\$TMP} }
 
 # want_cwd: where the caller must stand afterwards.
 # want_ran: the directory colcon must have run in, or "" for "must not run".
 # want_err: pattern stderr must match; omitted means stderr must be silent.
+# want_status: exit status the wrapper must return; omitted means 0.
 case_() {
-    local desc=$1 want_cwd=$2 want_ran=$3 want_err=${4-} got_ran err
+    local desc=$1 want_cwd=$2 want_ran=$3 want_err=${4-} want_status=${5:-0} got_ran err ret
     err=$TMP/stderr
     rm -f $COLCON_STUB_LOG
     colcon build --packages-select foo >/dev/null 2>$err
+    ret=$?
     got_ran=$([[ -f $COLCON_STUB_LOG ]] && cat $COLCON_STUB_LOG)
     local ok=1 why=()
     [[ $PWD == $want_cwd ]] || { ok=0; why+=("cwd: want $(short $want_cwd), got $(short $PWD)") }
+    (( ret == want_status )) || { ok=0; why+=("exit status: want $want_status, got $ret") }
     [[ $got_ran == $want_ran ]] || {
         ok=0
         why+=("colcon ran in: want ${want_ran:-<not at all>}, got ${got_ran:-<not at all>}")
@@ -110,7 +117,7 @@ case_ "called from outside the workspace"     $TMP/elsewhere   $TMP/ws
 # directory, and must say why.
 ROS2_WORKSPACE=$TMP/nonexistent
 dirstack=(); cd $TMP/elsewhere
-case_ "workspace does not exist"              $TMP/elsewhere   "" "no such file or directory"
+case_ "workspace does not exist"              $TMP/elsewhere   "" "no such file or directory" 1
 ROS2_WORKSPACE=$TMP/ws
 
 # No workspace configured: behave like plain colcon, right here.
@@ -122,7 +129,21 @@ ROS2_WORKSPACE=$TMP/ws
 # Inside a worktree outside the workspace the wrapper refuses and points at cbw.
 git init -q $TMP/repo && git -C $TMP/repo commit -q --allow-empty -m init
 dirstack=(); cd $TMP/repo
-case_ "inside a git worktree"                 $TMP/repo        "" "use cbw instead"
+case_ "inside a git worktree"                 $TMP/repo        "" "use cbw instead" 1
+
+# A failed build must not report success: `colcon build && ros2 launch ...` has
+# to stop. The exact code is propagated, not just non-zero.
+COLCON_STUB_EXIT=3
+dirstack=(); cd $TMP/elsewhere
+case_ "a failed build propagates its status"  $TMP/elsewhere   $TMP/ws  "" 3
+COLCON_STUB_EXIT=0
+
+# And a success must report success even when there is no install space to
+# source yet, which is the state of a workspace that has never been built.
+rm -f $ROS2_WORKSPACE/install/setup.zsh
+dirstack=(); cd $TMP/elsewhere
+case_ "success before any install space exists" $TMP/elsewhere $TMP/ws  "" 0
+: > $ROS2_WORKSPACE/install/setup.zsh
 
 cd /; rm -rf $TMP
 print -r -- ""
