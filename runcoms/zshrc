@@ -294,8 +294,8 @@ export ROS2_WORKSPACE="${ROS2_WORKSPACE:-$HOME/ros2_ws}"
 # is defined (e.g. in .zshrc_local) or overridden for a single invocation.
 function colcon() {
     # No workspace configured means this layout is not in use here, so stay out
-    # of the way and behave like plain colcon. (It would also make pushd run with
-    # no argument, swapping the directory stack and building somewhere else.)
+    # of the way and behave like plain colcon. (An empty value would also make the
+    # cd below run with no argument and build in $HOME.)
     if [ -z "$ROS2_WORKSPACE" ]; then
         command colcon "$@"
         return
@@ -306,9 +306,13 @@ function colcon() {
         return 1
     fi
     echo "ROS2_WORKSPACE: ${ROS2_WORKSPACE}"
-    pushd $ROS2_WORKSPACE > /dev/null
-    command colcon "$@"
-    popd > /dev/null
+    # A subshell rather than pushd/popd. Under prezto's PUSHD_IGNORE_DUPS,
+    # pushing $ROS2_WORKSPACE while already standing in it is discarded as a
+    # duplicate, so the matching popd pops whatever came before and sends the
+    # caller there instead of leaving them put. cd inside a subshell cannot move
+    # the caller at all, and && keeps colcon from running in the current
+    # directory when the workspace is missing.
+    ( cd $ROS2_WORKSPACE && command colcon "$@" )
     # Missing before the first successful build, and after a failed one.
     [ -f $ROS2_WORKSPACE/install/setup.zsh ] && source $ROS2_WORKSPACE/install/setup.zsh
 }
