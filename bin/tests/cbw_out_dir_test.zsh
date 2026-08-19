@@ -13,12 +13,12 @@
 # No colcon, no ROS and no network: only zsh and git. Nothing is written under
 # ~/.cache/colcon -- the expected paths are compared as strings.
 #
-# Usage: bin/test-cbw.zsh [path/to/zshrc]
+# Usage: bin/tests/cbw_out_dir_test.zsh [path/to/zshrc]
 
 emulate -L zsh
 setopt no_unset
 
-ZSHRC=${1:-${0:A:h}/../runcoms/zshrc}
+ZSHRC=${1:-${0:A:h}/../../runcoms/zshrc}
 TMP=${TMPDIR:-/tmp}/cbw_out_dir_test.$$
 typeset -i pass=0 fail=0
 
