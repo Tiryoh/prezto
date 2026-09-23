@@ -275,8 +275,8 @@ if command -v direnv >/dev/null 2>&1; then
 fi
 
 function codex-fast() {
-	command codex -m gpt-5.6-luna \
-    -c 'model_reasoning_effort="max"' \
+    command codex -m gpt-6-luna \
+    -c 'model_reasoning_effort="high"' \
     -c 'service_tier="fast"' \
     --enable fast_mode "$@"
 }
