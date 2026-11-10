@@ -34,7 +34,9 @@ fi
 # Create a persistent SSH authentication socket.
 if [[ -S "$SSH_AUTH_SOCK" && "$SSH_AUTH_SOCK" != "$_ssh_agent_sock" ]]; then
   mkdir -p "$_ssh_agent_sock:h"
-  ln -sf "$SSH_AUTH_SOCK" "$_ssh_agent_sock"
+  # Link to the resolved socket. If $SSH_AUTH_SOCK is another symlink that
+  # points back to $_ssh_agent_sock, linking to it as-is creates a loop.
+  ln -sf "${SSH_AUTH_SOCK:A}" "$_ssh_agent_sock"
   export SSH_AUTH_SOCK="$_ssh_agent_sock"
 fi
 
